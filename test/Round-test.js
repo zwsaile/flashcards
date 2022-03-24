@@ -19,7 +19,6 @@ describe('Round', () => {
     card3 = new Card(12, 'What is Travis\'s favorite stress reliever?', ['listening to music', 'watching Netflix', 'playing with bubble wrap'], 'playing with bubble wrap');
     deck = new Deck([card1, card2, card3]);
     round = new Round(deck);
-    turn = new Turn('sea otter', round.deck.cards[0])
   })
 
   it('should be a function', () => {
@@ -48,17 +47,36 @@ describe('Round', () => {
     expect(round.deck.cards[0]).to.equal(card2)
   });
 
+  it('should store incorrect guesses', () => {
+    round.takeTurn('pug')
+    expect(round.incorrectGuesses.length).to.equal(1)
+  });
+
   it('should evaluate the current user guess', () => {
-    round.takeTurn();
-    expect(turn.evaluateGuess()).to.equal(true)
-    turn = new Turn('spleen', round.deck.cards[0])
-    expect(turn.evaluateGuess()).to.equal(false)
+    round.takeTurn('sea otter');
+    expect(round.incorrectGuesses.length).to.equal(0)
+    round.takeTurn('spleen')
+    expect(round.incorrectGuesses.length).to.equal(1)
   });
 
   it('should tell the user if their guess was correct or incorrect', () => {
-    round.takeTurn();
-    expect(turn.giveFeedback()).to.equal('correct!')
-    turn = new Turn('spleen', round.deck.cards[0])
-    expect(turn.giveFeedback()).to.equal('incorrect!')
-  })
+    expect(round.takeTurn('sea otter')).to.equal('correct!')
+    expect(round.takeTurn('pug')).to.equal('incorrect!')
+  });
+
+  it('should be able to calculate the percentage of correct guesses', () => {
+    round.takeTurn('sea otter');
+    expect(round.calculatePercentCorrect()).to.equal('100%');
+    round.takeTurn('spleen');
+    expect(round.calculatePercentCorrect()).to.equal('50%');
+    round.takeTurn('listening to music');
+    expect(round.calculatePercentCorrect()).to.equal('33%');
+  });
+
+  it('should be able to end the round and return a message telling the user what their percentage of wins was', () => {
+    round.takeTurn('sea otter');
+    round.takeTurn('spleen');
+    round.takeTurn('listening to music');
+    expect(round.endRound()).to.equal('**Round over!** You answered 33% of the questions correctly!')
+  });
 });
