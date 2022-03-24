@@ -15,16 +15,23 @@ class Round {
     this.turns += 1;
     const turn = new Turn(guess, this.deck.cards[0]);
     turn.evaluateGuess();
-    turn.giveFeedback();
+    if (!turn.evaluateGuess()) {
+      this.incorrectGuesses.unshift(guess)
+    }
     this.deck.cards.shift();
+    return turn.giveFeedback();
   };
 
   calculatePercentCorrect() {
-
+    const percentIncorrect = (this.incorrectGuesses.length / this.turns) * 100;
+    const percentCorrect = `${100 - percentIncorrect.toFixed()}%`;
+    return percentCorrect
   };
 
   endRound() {
-
+    const winMsg = `**Round over!** You answered ${this.calculatePercentCorrect()} of the questions correctly!`;
+    console.log(winMsg);
+    return winMsg;
   };
 };
 
